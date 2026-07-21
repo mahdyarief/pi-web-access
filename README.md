@@ -39,6 +39,25 @@ Works immediately with no API keys — Exa MCP provides zero-config search. If P
 }
 ```
 
+### OpenAI-Compatible Provider
+
+For custom OpenAI-compatible endpoints (OpenRouter, Together, local LLMs, etc.):
+
+```json
+{
+  "openaiCompatBaseUrl": "https://openrouter.ai/api/v1",
+  "openaiCompatApiKey": "sk-or-...",
+  "openaiCompatModel": "openai/gpt-4o",
+  "searchProvider": "openai_compat"
+}
+```
+
+Supported config options:
+- `openaiCompatBaseUrl` - Base URL of the OpenAI-compatible API
+- `openaiCompatApiKey` - API key for authentication
+- `openaiCompatModel` - Model name to use (default: "gpt-3.5-turbo")
+- `searchProvider` - Set to "openai_compat" to use this provider
+
 In `auto` mode (default), `web_search` tries OpenAI when suitable and available, then Exa (direct API if keyed, MCP if not), Brave, Parallel, Tavily, Perplexity, Gemini API, then Gemini Web when browser-cookie access is enabled.
 
 Optional dependencies for video frame extraction:
