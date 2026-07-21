@@ -10,7 +10,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows*-blue?style=for-the-badge)]()
 
-https://github.com/user-attachments/assets/cac6a17a-1eeb-4dde-9818-cdf85d8ea98f
 
 ## Why Pi Web Access
 
@@ -52,6 +51,23 @@ brew install yt-dlp   # YouTube stream URLs for frame extraction
 Without these, video content analysis (transcripts, visual descriptions via Gemini) still works. The binaries are only needed for extracting individual frames as images.
 
 Requires Pi v0.37.3+.
+
+### Verify Installation
+
+After installing, verify the extension is loaded:
+
+```bash
+pi extensions
+```
+
+You should see `pi-web-access` in the list. To test it works:
+
+```typescript
+// In Pi, try a simple search
+web_search({ query: "test" })
+```
+
+If you see search results, the extension is working correctly.
 
 ## Quick Start
 
@@ -310,6 +326,33 @@ Values use the same format as pi keybindings (e.g. `ctrl+s`, `ctrl+shift+s`, `al
 Set `"enabled": false` under any feature to disable it. Config changes require a Pi restart.
 
 Rate limits: Perplexity is capped at 10 requests/minute (client-side). Content fetches run 3 concurrent with a 30s timeout per URL.
+
+
+## Troubleshooting
+
+**Extension not loading?**
+- Restart Pi after installation: `pi restart`
+- Check if extension is in the list: `pi extensions`
+- Verify Pi version is v0.37.3 or higher: `pi --version`
+
+**No search results?**
+- Test with a simple query: `web_search({ query: "test" })`
+- Check API keys in `~/.pi/web-search.json`
+- Try a different provider: `web_search({ query: "test", provider: "brave" })`
+
+**fetch_content returns empty?**
+- Some sites block automated access (paywalls, bot protection)
+- Try with workflow disabled: `fetch_content({ url: "...", workflow: "none" })`
+- Check if URL is accessible in a regular browser
+
+**Video extraction fails?**
+- YouTube age-restricted or private videos may not work
+- Videos longer than 1 hour may be truncated
+- For local videos, ensure file is under 50MB
+
+**Curator UI not opening?**
+- In headless environments (Docker, WSL, SSH), copy the URL from tool output
+- Increase timeout: set `curatorTimeoutSeconds` in config (max 600)
 
 ## Limitations
 

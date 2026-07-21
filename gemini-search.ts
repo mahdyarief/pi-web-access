@@ -9,6 +9,7 @@ import { isBraveAvailable, searchWithBrave } from "./brave.ts";
 import { isOpenAISearchAvailable, searchWithOpenAI } from "./openai-search.ts";
 import { isParallelAvailable, searchWithParallel } from "./parallel.ts";
 import { isTavilyAvailable, searchWithTavily } from "./tavily.ts";
+import { isOpenAICompatAvailable, openaiCompatSearch } from "./openai-compat.ts";
 import { getWebSearchConfigPath } from "./utils.ts";
 
 export type SearchProvider = "auto" | "openai" | "brave" | "parallel" | "tavily" | "perplexity" | "gemini" | "exa";
@@ -61,7 +62,7 @@ function normalizeSearchModel(value: unknown): string | undefined {
 
 function normalizeSearchProvider(value: unknown): SearchProvider {
 	const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
-	const valid: SearchProvider[] = ["auto", "openai", "brave", "parallel", "tavily", "perplexity", "gemini", "exa"];
+	const valid: SearchProvider[] = ["auto", "openai", "openai_compat", "brave", "parallel", "tavily", "perplexity", "gemini", "exa"];
 	return valid.includes(normalized as SearchProvider) ? normalized as SearchProvider : "auto";
 }
 
@@ -124,6 +125,11 @@ export async function search(query: string, options: FullSearchOptions = {}): Pr
 	if (provider === "openai") {
 		const result = await searchWithOpenAI(query, options, options.extensionContext);
 		return { ...result, provider: "openai" };
+
+	if (provider === "openai_compat") {
+		const result = await openaiCompatSearch(query, options);
+		if (result) return { ...result, provider: "openai_compat" };
+	}
 	}
 
 	if (provider === "brave") {

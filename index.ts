@@ -150,7 +150,7 @@ function normalizeProviderInput(value: unknown): SearchProvider | undefined {
 	if (value === undefined) return undefined;
 	if (typeof value !== "string") return "auto";
 	const normalized = value.trim().toLowerCase();
-	const valid: SearchProvider[] = ["auto", "openai", "brave", "parallel", "tavily", "exa", "perplexity", "gemini"];
+	const valid: SearchProvider[] = ["auto", "openai", "openai_compat", "brave", "parallel", "tavily", "exa", "perplexity", "gemini"];
 	return valid.includes(normalized as SearchProvider) ? normalized as SearchProvider : "auto";
 }
 
@@ -1255,7 +1255,7 @@ export default function (pi: ExtensionAPI) {
 			),
 			domainFilter: Type.Optional(Type.Array(Type.String(), { description: "Limit to domains (prefix with - to exclude)" })),
 			provider: Type.Optional(
-				StringEnum(["auto", "openai", "brave", "parallel", "tavily", "exa", "perplexity", "gemini"], { description: "Search provider (default: auto)" }),
+				StringEnum(["auto", "openai", "openai_compat", "brave", "parallel", "tavily", "exa", "perplexity", "gemini"], { description: "Search provider (default: auto)" }),
 			),
 			workflow: Type.Optional(
 				StringEnum(["none", "summary-review", "auto-summary"], {
