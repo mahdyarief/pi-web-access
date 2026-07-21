@@ -4,13 +4,13 @@ import { join } from 'path';
 
 interface PiAuthConfig {
   currentProvider?: string;
-  [key: string]: any;
-}
-
-interface PiProviderConfig {
-  baseUrl?: string;
-  apiKey?: string;
-  defaultModelId?: string;
+  providers?: {
+    [key: string]: {
+      baseUrl?: string;
+      apiKey?: string;
+      defaultModelId?: string;
+    };
+  };
 }
 
 interface WebSearchConfig {
@@ -35,14 +35,14 @@ function loadPiAuthConfig(): PiAuthConfig | null {
   }
 }
 
-function getPiProviderConfig(): PiProviderConfig | null {
+function getPiProviderConfig(): { baseUrl?: string; apiKey?: string; defaultModelId?: string } | null {
   const authConfig = loadPiAuthConfig();
-  if (!authConfig || !authConfig.currentProvider) {
+  if (!authConfig || !authConfig.currentProvider || !authConfig.providers) {
     return null;
   }
   
   const providerKey = authConfig.currentProvider;
-  const providerConfig = authConfig[providerKey];
+  const providerConfig = authConfig.providers[providerKey];
   
   if (!providerConfig || typeof providerConfig !== 'object') {
     return null;
