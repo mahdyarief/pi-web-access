@@ -163,10 +163,10 @@ function normalizeCuratorTimeoutSeconds(value: unknown): number | undefined {
 
 function resolveWorkflow(input: unknown, hasUI: boolean): WebSearchWorkflow {
 	const normalized = typeof input === "string" ? input.trim().toLowerCase() : "";
-	if (normalized === "auto-summary") return "auto-summary";
+	if (normalized === "summary-review") return "summary-review";
 	if (!hasUI) return "none";
 	if (normalized === "none") return "none";
-	return "summary-review";
+	return "auto-summary";
 }
 
 function normalizeQueryList(queryList: unknown[]): string[] {
