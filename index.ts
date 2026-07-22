@@ -132,7 +132,7 @@ function saveConfig(updates: Partial<WebSearchConfig>): void {
 	writeFileSync(WEB_SEARCH_CONFIG_PATH, JSON.stringify(config, null, 2) + "\n");
 }
 
-const DEFAULT_SHORTCUTS = { curate: "ctrl+shift+s", activity: "ctrl+shift+w" };
+const DEFAULT_SHORTCUTS = { curate: "ctrl+shift+s", activity: "ctrl+shift+w", toggle: "ctrl+shift+t" };
 const DEFAULT_CURATOR_TIMEOUT_SECONDS = 20;
 const MAX_CURATOR_TIMEOUT_SECONDS = 600;
 
@@ -268,6 +268,7 @@ function resolveProvider(
 const pendingFetches = new Map<string, AbortController>();
 let sessionActive = false;
 let widgetVisible = false;
+let currentWorkflowMode: "auto" | "review" = "auto";
 let widgetUnsubscribe: (() => void) | null = null;
 const pendingCurates = new Map<string, PendingCurate>();
 const activeCurators = new Map<string, CuratorServerHandle>();
@@ -556,6 +557,7 @@ export default function (pi: ExtensionAPI) {
 	const initConfig = loadConfigForExtensionInit();
 	const curateKey = initConfig.shortcuts?.curate || DEFAULT_SHORTCUTS.curate;
 	const activityKey = initConfig.shortcuts?.activity || DEFAULT_SHORTCUTS.activity;
+	const toggleKey = initConfig.shortcuts?.toggle || DEFAULT_SHORTCUTS.toggle;
 
 	function startBackgroundFetch(urls: string[]): string | null {
 		if (urls.length === 0) return null;
@@ -1222,6 +1224,16 @@ export default function (pi: ExtensionAPI) {
 		},
 	});
 
+	pi.registerShortcut(toggleKey, {
+		description: "Toggle workflow mode (auto/review)",
+		handler: async (ctx) => {
+			currentWorkflowMode = currentWorkflowMode === "auto" ? "review" : "auto";
+			updateWorkflowWidget(ctx);
+			const modeText = currentWorkflowMode === "auto" ? "⚡ auto-summary" : "👁 summary-review";
+			ctx.ui.notify("Workflow: " + modeText, "info");
+		},
+	});
+
 	pi.on("session_start", async (_event, ctx) => handleSessionChange(ctx));
 	pi.on("session_tree", async (_event, ctx) => handleSessionChange(ctx));
 
@@ -1272,6 +1284,8 @@ export default function (pi: ExtensionAPI) {
 			const configWorkflow = loadConfigForExtensionInit().workflow;
 			const workflow = resolveWorkflow(params.workflow ?? configWorkflow, ctx?.hasUI !== false);
 			const shouldCurate = workflow === "summary-review";
+			currentWorkflowMode = workflow === "summary-review" ? "review" : "auto";
+			if (ctx) updateWorkflowWidget(ctx);
 
 			if (queryList.length === 0) {
 				return {
